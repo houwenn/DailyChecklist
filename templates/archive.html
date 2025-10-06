@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>存档清单 - DailyChecklist</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="header-content">
+                <el-button class="back-btn" icon="el-icon-arrow-left" @click="goBack">返回主页</el-button>
+                <h1>存档清单</h1>
+                <div class="time-info">
+                    <div class="date" v-text="currentDate"></div>
+                    <div class="time">
+                        <div class="time-icon" :class="timePeriod" v-text="timeIcon"></div>
+                        <span v-text="currentTime"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <!-- 存档列表 -->
+            <div class="archive-section">
+                <div class="archive-title">
+                    <span>存档清单</span>
+                    <span class="refresh-btn" @click="refreshArchiveData">
+                        <div class="refresh-icon" ref="refreshIcon"></div>
+                        <span>刷新</span>
+                    </span>
+                </div>
+                <el-table 
+                    :data="archivedTodos" 
+                    class="archive-table"
+                    v-loading="loading"
+                    empty-text="暂无存档数据">
+                    <el-table-column type="index" width="60" label="序号"></el-table-column>
+                    <el-table-column prop="title" label="待办事项" min-width="200"></el-table-column>
+                    <el-table-column prop="status" label="状态" width="100">
+                        <template slot-scope="scope">
+                            <span 
+                                class="status-tag" 
+                                :class="scope.row.status ? 'status-completed' : 'status-pending'"
+                                v-text="scope.row.status ? '已完成' : '未完成'">
+                            </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="created_at" label="创建时间" width="160">
+                        <template slot-scope="scope">
+                            <div class="time-display" v-text="formatTime(scope.row.created_at)"></div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="archived_at" label="存档时间" width="160">
+                        <template slot-scope="scope">
+                            <div class="time-display" v-text="formatTime(scope.row.archived_at)"></div>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="stats-section">
+                <div class="stats-title">数据概览</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number stat-archived" v-text="stats.archived_count || 0"></div>
+                        <div class="stat-label">总存档数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-active" v-text="stats.total_count || 0"></div>
+                        <div class="stat-label">当前待办</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-completed" v-text="stats.completed_count || 0"></div>
+                        <div class="stat-label">已完成</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-rate" v-text="(stats.completion_rate || 0).toFixed(1) + '%'"></div>
+                        <div class="stat-label">完成率</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 历史趋势图表 -->
+            <div class="chart-section">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">历史趋势</div>
+                        <div class="chart-tabs">
+                            <div 
+                                class="chart-tab" 
+                                :class="{ active: selectedPeriod === 'week' }"
+                                @click="changePeriod('week')">近7天</div>
+                            <div 
+                                class="chart-tab" 
+                                :class="{ active: selectedPeriod === 'month' }"
+                                @click="changePeriod('month')">近30天</div>
+                            <div 
+                                class="chart-tab" 
+                                :class="{ active: selectedPeriod === 'year' }"
+                                @click="changePeriod('year')">近12月</div>
+                        </div>
+                    </div>
+                    <div id="lineChart" class="chart-container"></div>
+                </div>
+            </div>
+
+            <!-- 完成情况饼图 -->
+            <div class="chart-section">
+                <div class="chart-card">
+                    <div class="chart-title">完成情况统计</div>
+                    <div id="pieChart" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    archivedTodos: [],
+                    stats: {},
+                    loading: false,
+                    currentTime: '',
+                    currentDate: '',
+                    timePeriod: 'morning',
+                    timeIcon: '☀',
+                    selectedPeriod: 'week',
+                    lineChart: null,
+                    pieChart: null,
+                    historyData: {}
+                }
+            },
+            mounted() {
+                this.updateTime();
+                this.loadData();
+                this.initCharts();
+                setInterval(this.updateTime, 1000);
+            },
+            methods: {
+                updateTime() {
+                    const now = new Date();
+                    this.currentTime = now.toLocaleTimeString('zh-CN', {
+                        hour12: false,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    this.currentDate = now.toLocaleDateString('zh-CN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                    });
+                    
+                    // 根据时间设置图标和样式
+                    const hour = now.getHours();
+                    if (hour >= 6 && hour < 12) {
+                        this.timePeriod = 'morning';
+                        this.timeIcon = '☀';
+                    } else if (hour >= 12 && hour < 18) {
+                        this.timePeriod = 'afternoon';
+                        this.timeIcon = '☀';
+                    } else if (hour >= 18 && hour < 22) {
+                        this.timePeriod = 'evening';
+                        this.timeIcon = '🌅';
+                    } else {
+                        this.timePeriod = 'night';
+                        this.timeIcon = '🌙';
+                    }
+                },
+                formatTime(timeStr) {
+                    if (!timeStr) return '';
+                    const date = new Date(timeStr);
+                    return date.toLocaleString('zh-CN', {
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                },
+                async loadData() {
+                    this.loading = true;
+                    try {
+                        // 加载存档数据
+                        const archivedResponse = await axios.get('/v1/todo/archived');
+                        this.archivedTodos = archivedResponse.data;
+                        
+                        // 加载统计数据
+                        const statsResponse = await axios.get('/v1/todo/stats');
+                        this.stats = statsResponse.data;
+                        
+                        // 加载历史数据
+                        await this.loadHistoryData();
+                        
+                        // 更新图表
+                        this.updatePieChart();
+                        this.updateLineChart();
+                    } catch (error) {
+                        this.$message.error('加载数据失败: ' + error.message);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                async loadHistoryData() {
+                    try {
+                        const response = await axios.get(`/v1/todo/history?period=${this.selectedPeriod}`);
+                        this.historyData = response.data;
+                    } catch (error) {
+                        console.error('加载历史数据失败:', error);
+                    }
+                },
+                async changePeriod(period) {
+                    this.selectedPeriod = period;
+                    await this.loadHistoryData();
+                    this.updateLineChart();
+                },
+                async refreshData() {
+                    this.loadData();
+                },
+                async refreshArchiveData() {
+                    // 添加旋转动画
+                    if (this.$refs.refreshIcon) {
+                        this.$refs.refreshIcon.classList.add('spinning');
+                        setTimeout(() => {
+                            this.$refs.refreshIcon.classList.remove('spinning');
+                        }, 600);
+                    }
+                    
+                    // 请求数据
+                    await this.loadData();
+                },
+                goBack() {
+                    window.location.href = '/';
+                },
+                initCharts() {
+                    this.lineChart = echarts.init(document.getElementById('lineChart'));
+                    this.pieChart = echarts.init(document.getElementById('pieChart'));
+                },
+                updatePieChart() {
+                    if (!this.pieChart) return;
+                    
+                    const option = {
+                        title: {
+                            text: '完成情况',
+                            left: 'center',
+                            top: '10px',
+                            textStyle: {
+                                color: '#4a5568',
+                                fontSize: 16,
+                                fontWeight: 'normal'
+                            }
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            borderColor: '#e2e8f0',
+                            textStyle: {
+                                color: '#2d3748'
+                            }
+                        },
+                        legend: {
+                            orient: 'horizontal',
+                            bottom: '5px',
+                            textStyle: {
+                                color: '#718096',
+                                fontSize: 12
+                            },
+                            itemGap: 20
+                        },
+                        series: [
+                            {
+                                name: '待办事项',
+                                type: 'pie',
+                                radius: ['35%', '65%'],
+                                center: ['50%', '50%'],
+                                data: [
+                                    { 
+                                        value: this.stats.completed_count || 0, 
+                                        name: '已完成',
+                                        itemStyle: { color: '#48bb78' }
+                                    },
+                                    { 
+                                        value: (this.stats.total_count || 0) - (this.stats.completed_count || 0), 
+                                        name: '未完成',
+                                        itemStyle: { color: '#ed8936' }
+                                    },
+                                    { 
+                                        value: this.stats.archived_count || 0, 
+                                        name: '已存档',
+                                        itemStyle: { color: '#667eea' }
+                                    }
+                                ],
+                                emphasis: {
+                                    itemStyle: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                },
+                                label: {
+                                    show: false
+                                },
+                                labelLine: {
+                                    show: false
+                                }
+                            }
+                        ]
+                    };
+                    
+                    this.pieChart.setOption(option);
+                },
+                updateLineChart() {
+                    if (!this.lineChart || !this.historyData.data) return;
+                    
+                    const data = this.historyData.data.map(item => item.count);
+                    const labels = this.historyData.labels;
+                    
+                    const option = {
+                        title: {
+                            text: '创建趋势',
+                            left: 'center',
+                            textStyle: {
+                                color: '#4a5568',
+                                fontSize: 16,
+                                fontWeight: 'normal'
+                            }
+                        },
+                        tooltip: {
+                            trigger: 'axis',
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            borderColor: '#e2e8f0',
+                            textStyle: {
+                                color: '#2d3748'
+                            }
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: labels,
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#e2e8f0'
+                                }
+                            },
+                            axisLabel: {
+                                color: '#718096'
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#e2e8f0'
+                                }
+                            },
+                            axisLabel: {
+                                color: '#718096'
+                            },
+                            splitLine: {
+                                lineStyle: {
+                                    color: '#f7fafc'
+                                }
+                            }
+                        },
+                        series: [
+                            {
+                                name: '创建数量',
+                                type: 'line',
+                                smooth: true,
+                                data: data,
+                                lineStyle: {
+                                    color: '#667eea',
+                                    width: 3
+                                },
+                                itemStyle: {
+                                    color: '#667eea'
+                                },
+                                areaStyle: {
+                                    color: {
+                                        type: 'linear',
+                                        x: 0,
+                                        y: 0,
+                                        x2: 0,
+                                        y2: 1,
+                                        colorStops: [{
+                                            offset: 0, color: 'rgba(102, 126, 234, 0.3)'
+                                        }, {
+                                            offset: 1, color: 'rgba(102, 126, 234, 0.05)'
+                                        }]
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    
+                    this.lineChart.setOption(option);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

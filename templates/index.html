@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日清单</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="header-content">
+                <h1>每日清单</h1>
+                <div class="time-info">
+                    <div class="date" v-text="currentDate"></div>
+                    <div class="time">
+                        <div class="time-icon" :class="timePeriod" v-text="timeIcon"></div>
+                        <span v-text="currentTime"></span>
+                    </div>
+                </div>
+                <el-button class="archive-btn" icon="el-icon-folder" @click="goToArchive">查看存档</el-button>
+            </div>
+        </div>
+        
+        <div class="container">
+            <!-- 添加待办事项 -->
+            <div class="add-todo-card">
+                <div class="add-todo-title">添加新的待办事项</div>
+                <div class="add-todo-form">
+                    <div class="add-todo-input">
+                        <el-input 
+                            v-model="newTitle" 
+                            placeholder="输入你的待办事项..." 
+                            @keyup.enter.native="handleAdd"
+                            size="large">
+                        </el-input>
+                    </div>
+                    <el-button class="add-btn" icon="el-icon-plus" @click="handleAdd" size="large">添加</el-button>
+                </div>
+            </div>
+            
+            <!-- 待办事项列表 -->
+            <div class="todo-section">
+                <div class="todo-title">
+                    <span>待办事项列表</span>
+                    <span class="refresh-btn" @click="refreshTodoList">
+                        <div class="refresh-icon" ref="refreshIcon"></div>
+                        <span>刷新</span>
+                    </span>
+                </div>
+                
+                <el-table 
+                    :data="tableData" 
+                    class="todo-table"
+                    :row-class-name="tableRowClassName" 
+                    v-loading="loading"
+                    empty-text="暂无待办事项">
+                    <el-table-column type="index" width="60" label="序号"></el-table-column>
+                    <el-table-column prop="title" label="待办事项" min-width="200"></el-table-column>
+                    <el-table-column prop="created_at" label="创建时间" width="160">
+                        <template slot-scope="scope">
+                            <div class="time-display" v-text="formatTime(scope.row.created_at)"></div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" width="200">
+                        <template slot-scope="scope">
+                            <div class="todo-actions">
+                                <el-button 
+                                    v-show="!scope.row.status" 
+                                    class="action-btn complete"
+                                    icon="el-icon-check" 
+                                    circle 
+                                    size="mini"
+                                    @click="handleEdit(scope.$index, scope.row)"
+                                    title="标记完成">
+                                </el-button>
+                                <el-button 
+                                    v-show="scope.row.status" 
+                                    class="action-btn undo"
+                                    icon="el-icon-refresh-left" 
+                                    circle 
+                                    size="mini"
+                                    @click="handleEdit(scope.$index, scope.row)"
+                                    title="标记未完成">
+                                </el-button>
+                                <el-button 
+                                    class="action-btn archive"
+                                    icon="el-icon-folder-add" 
+                                    circle 
+                                    size="mini"
+                                    @click="handleArchive(scope.$index, scope.row)"
+                                    title="存档">
+                                </el-button>
+                                <el-button 
+                                    class="action-btn delete"
+                                    icon="el-icon-close" 
+                                    circle 
+                                    size="mini"
+                                    @click="handleDelete(scope.$index, scope.row.id)"
+                                    title="删除">
+                                </el-button>
+                            </div>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+            
+            <!-- 统计信息 -->
+            <div class="stats-section">
+                <div class="stats-title">今日概览</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number stat-total" v-text="stats.total_count || 0"></div>
+                        <div class="stat-label">总待办</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-completed" v-text="stats.completed_count || 0"></div>
+                        <div class="stat-label">已完成</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-pending" v-text="(stats.total_count || 0) - (stats.completed_count || 0)"></div>
+                        <div class="stat-label">待完成</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number stat-rate" v-text="(stats.completion_rate || 0).toFixed(1) + '%'"></div>
+                        <div class="stat-label">完成率</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 图表展示 -->
+            <div class="chart-card">
+                <div class="chart-title">完成情况统计</div>
+                <div id="chart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    tableData: [],
+                    newTitle: '',
+                    loading: false,
+                    stats: {},
+                    currentTime: '',
+                    currentDate: '',
+                    timePeriod: 'morning',
+                    timeIcon: '☀',
+                    chart: null
+                }
+            },
+            mounted() {
+                this.updateTime();
+                this.getTodoList();
+                this.loadStats();
+                this.initChart();
+                setInterval(this.updateTime, 1000);
+            },
+            methods: {
+                updateTime() {
+                    const now = new Date();
+                    this.currentTime = now.toLocaleTimeString('zh-CN', {
+                        hour12: false,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    this.currentDate = now.toLocaleDateString('zh-CN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                    });
+                    
+                    // 根据时间设置图标和样式
+                    const hour = now.getHours();
+                    if (hour >= 6 && hour < 12) {
+                        this.timePeriod = 'morning';
+                        this.timeIcon = '☀';
+                    } else if (hour >= 12 && hour < 18) {
+                        this.timePeriod = 'afternoon';
+                        this.timeIcon = '☀';
+                    } else if (hour >= 18 && hour < 22) {
+                        this.timePeriod = 'evening';
+                        this.timeIcon = '🌅';
+                    } else {
+                        this.timePeriod = 'night';
+                        this.timeIcon = '🌙';
+                    }
+                },
+                formatTime(timeStr) {
+                    if (!timeStr) return '';
+                    const date = new Date(timeStr);
+                    return date.toLocaleString('zh-CN', {
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                },
+                async getTodoList() {
+                    this.loading = true;
+                    try {
+                        const response = await axios.get('/v1/todo');
+                        this.tableData = response.data;
+                    } catch (error) {
+                        this.$message.error('获取待办事项失败: ' + error.message);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                async refreshTodoList() {
+                    // 添加旋转动画
+                    if (this.$refs.refreshIcon) {
+                        this.$refs.refreshIcon.classList.add('spinning');
+                        setTimeout(() => {
+                            this.$refs.refreshIcon.classList.remove('spinning');
+                        }, 600);
+                    }
+                    
+                    // 请求数据
+                    await this.getTodoList();
+                },
+                async loadStats() {
+                    try {
+                        const response = await axios.get('/v1/todo/stats');
+                        this.stats = response.data;
+                        this.updateChart();
+                    } catch (error) {
+                        console.error('获取统计数据失败:', error);
+                    }
+                },
+                tableRowClassName({row}) {
+                    return row.status ? 'success-row' : '';
+                },
+                async handleEdit(index, row) {
+                    try {
+                        await axios.put(`/v1/todo/${row.id}`, { status: !row.status });
+                        this.tableData[index].status = !row.status;
+                        const action = row.status ? '置为未完成' : '置为已完成';
+                        this.$message.success(`<${row.title}> ${action}`);
+                        this.loadStats();
+                    } catch (error) {
+                        this.$message.error('更新失败: ' + error.message);
+                    }
+                },
+                async handleDelete(index, id) {
+                    try {
+                        await axios.delete(`/v1/todo/${id}`);
+                        this.tableData.splice(index, 1);
+                        this.$message.success('删除待办事项成功');
+                        this.loadStats();
+                    } catch (error) {
+                        this.$message.error('删除失败: ' + error.message);
+                    }
+                },
+                async handleArchive(index, row) {
+                    try {
+                        await axios.post(`/v1/todo/${row.id}/archive`);
+                        this.tableData.splice(index, 1);
+                        this.$message.success(`<${row.title}> 已存档`);
+                        this.loadStats();
+                    } catch (error) {
+                        this.$message.error('存档失败: ' + error.message);
+                    }
+                },
+                async handleAdd() {
+                    if (this.newTitle.trim() === '') {
+                        this.$message.warning('请输入待办事项内容');
+                        return;
+                    }
+                    try {
+                        await axios.post('/v1/todo', { title: this.newTitle });
+                        this.getTodoList();
+                        this.loadStats();
+                        this.$message.success('添加待办事项成功');
+                        this.newTitle = '';
+                    } catch (error) {
+                        this.$message.error('添加失败: ' + error.message);
+                    }
+                },
+                goToArchive() {
+                    window.location.href = '/archive';
+                },
+                initChart() {
+                    this.chart = echarts.init(document.getElementById('chart'));
+                },
+                updateChart() {
+                    if (!this.chart) return;
+                    
+                    const option = {
+                        title: {
+                            text: '完成情况',
+                            left: 'center',
+                            top: '10px',
+                            textStyle: {
+                                color: '#4a5568',
+                                fontSize: 16,
+                                fontWeight: 'normal'
+                            }
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            borderColor: '#e2e8f0',
+                            textStyle: {
+                                color: '#2d3748'
+                            }
+                        },
+                        legend: {
+                            orient: 'horizontal',
+                            bottom: '5px',
+                            textStyle: {
+                                color: '#718096',
+                                fontSize: 12
+                            },
+                            itemGap: 20
+                        },
+                        series: [
+                            {
+                                name: '待办事项',
+                                type: 'pie',
+                                radius: ['35%', '65%'],
+                                center: ['50%', '50%'],
+                                data: [
+                                    { 
+                                        value: this.stats.completed_count || 0, 
+                                        name: '已完成',
+                                        itemStyle: { color: '#48bb78' }
+                                    },
+                                    { 
+                                        value: (this.stats.total_count || 0) - (this.stats.completed_count || 0), 
+                                        name: '未完成',
+                                        itemStyle: { color: '#ed8936' }
+                                    }
+                                ],
+                                emphasis: {
+                                    itemStyle: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                },
+                                label: {
+                                    show: false
+                                },
+                                labelLine: {
+                                    show: false
+                                }
+                            }
+                        ]
+                    };
+                    
+                    this.chart.setOption(option);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

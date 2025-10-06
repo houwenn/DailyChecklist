@@ -1,0 +1,578 @@
+/* DailyChecklist 主样式文件 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    color: #2d3748;
+}
+
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1a202c;
+    letter-spacing: -0.5px;
+}
+
+.time-info {
+    text-align: right;
+    color: #718096;
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+.time-info .date {
+    font-weight: 500;
+    color: #2d3748;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.time-info .time {
+    font-weight: 400;
+    color: #718096;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.time-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    animation: timeGlow 2s ease-in-out infinite alternate;
+}
+
+.time-icon.morning {
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #f59e0b;
+}
+
+.time-icon.afternoon {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #d97706;
+}
+
+.time-icon.evening {
+    background: linear-gradient(135deg, #f59e0b, #dc2626);
+    color: #991b1b;
+}
+
+.time-icon.night {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: #cbd5e1;
+}
+
+@keyframes timeGlow {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.1); opacity: 1; }
+}
+
+.back-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.archive-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.archive-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+/* 添加待办事项 */
+.add-todo-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.add-todo-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.add-todo-title::before {
+    content: "✏️";
+    margin-right: 10px;
+}
+
+.add-todo-form {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.add-todo-input {
+    flex: 1;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+    transition: all 0.3s ease;
+}
+
+.add-btn:hover {
+    background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+}
+
+/* 统计信息 */
+.stats-section {
+    margin-bottom: 30px;
+}
+
+.stats-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.stats-title::before {
+    content: "📊";
+    margin-right: 10px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #718096;
+    font-weight: 500;
+}
+
+.stat-total { color: #667eea; }
+.stat-completed { color: #48bb78; }
+.stat-pending { color: #ed8936; }
+.stat-rate { color: #e53e3e; }
+.stat-archived { color: #667eea; }
+.stat-active { color: #48bb78; }
+
+/* 图表卡片 */
+.chart-section {
+    margin-bottom: 30px;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a202c;
+    display: flex;
+    align-items: center;
+}
+
+.chart-title::before {
+    content: "📈";
+    margin-right: 10px;
+}
+
+.chart-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.chart-tab {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #718096;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.chart-tab.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.chart-tab:hover:not(.active) {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.chart-container {
+    height: 350px;
+}
+
+/* 待办事项列表 */
+.todo-section {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.todo-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.todo-title::before {
+    content: "📋";
+    margin-right: 10px;
+}
+
+.todo-table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.todo-table .el-table__header {
+    background: #f7fafc;
+}
+
+.todo-table .el-table__header th {
+    background: #f7fafc;
+    color: #4a5568;
+    font-weight: 600;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.todo-table .el-table__row {
+    transition: all 0.3s ease;
+}
+
+.todo-table .el-table__row:hover {
+    background: #f7fafc;
+}
+
+.todo-table .success-row {
+    background: rgba(72, 187, 120, 0.05);
+}
+
+.todo-table .success-row td {
+    color: #38a169;
+}
+
+/* 存档列表 */
+.archive-section {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.archive-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.archive-title::before {
+    content: "📁";
+    margin-right: 10px;
+}
+
+.refresh-btn {
+    color: #667eea;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.refresh-btn:hover {
+    color: #5a67d8;
+}
+
+.refresh-icon {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #667eea;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.refresh-icon::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: 2px;
+    width: 0;
+    height: 0;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 6px solid #667eea;
+    transform: rotate(45deg);
+}
+
+.refresh-btn:hover .refresh-icon {
+    border-color: #5a67d8;
+}
+
+.refresh-btn:hover .refresh-icon::before {
+    border-bottom-color: #5a67d8;
+}
+
+.refresh-icon.spinning {
+    animation: spinOnce 0.6s ease-in-out;
+}
+
+@keyframes spinOnce {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.archive-table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.archive-table .el-table__header {
+    background: #f7fafc;
+}
+
+.archive-table .el-table__header th {
+    background: #f7fafc;
+    color: #4a5568;
+    font-weight: 600;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.archive-table .el-table__row {
+    transition: all 0.3s ease;
+}
+
+.archive-table .el-table__row:hover {
+    background: #f7fafc;
+}
+
+/* 状态标签 */
+.status-tag {
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-completed {
+    background: rgba(72, 187, 120, 0.1);
+    color: #38a169;
+}
+
+.status-pending {
+    background: rgba(237, 137, 54, 0.1);
+    color: #dd6b20;
+}
+
+/* 时间显示 */
+.time-display {
+    font-size: 12px;
+    color: #a0aec0;
+    font-weight: 400;
+}
+
+/* 操作按钮 */
+.todo-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.action-btn.complete {
+    background: #48bb78;
+    color: white;
+}
+
+.action-btn.complete:hover {
+    background: #38a169;
+    transform: scale(1.1);
+}
+
+.action-btn.undo {
+    background: #ed8936;
+    color: white;
+}
+
+.action-btn.undo:hover {
+    background: #dd6b20;
+    transform: scale(1.1);
+}
+
+.action-btn.archive {
+    background: #667eea;
+    color: white;
+}
+
+.action-btn.archive:hover {
+    background: #5a67d8;
+    transform: scale(1.1);
+}
+
+.action-btn.delete {
+    background: #e53e3e;
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background: #c53030;
+    transform: scale(1.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .add-todo-form {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .add-todo-input {
+        width: 100%;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .chart-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .chart-tabs {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .todo-actions {
+        flex-wrap: wrap;
+    }
+}
