@@ -37,6 +37,8 @@ func SetupRouter() *gin.Engine {
 		v1Group.GET("/todo/archived", controller.GetArchivedTodos)
 		// 获取统计数据
 		v1Group.GET("/todo/stats", controller.GetTodoStats)
+		// 获取存档统计数据
+		v1Group.GET("/todo/archived/stats", controller.GetArchivedTodoStats)
 		// 获取历史统计数据
 		v1Group.GET("/todo/history", controller.GetTodoHistoryStats)
 	}

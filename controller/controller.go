@@ -111,6 +111,16 @@ func GetTodoStats(c *gin.Context) {
 	}
 }
 
+// GetArchivedTodoStats 获取存档统计数据
+func GetArchivedTodoStats(c *gin.Context) {
+	stats, err := models.GetArchivedTodoStats()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"error": err.Error()})
+	} else {
+		c.JSON(http.StatusOK, stats)
+	}
+}
+
 // ArchivePageHandler 存档页面处理器
 func ArchivePageHandler(c *gin.Context) {
 	c.HTML(http.StatusOK, "archive.html", nil)

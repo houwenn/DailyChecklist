@@ -111,6 +111,31 @@ func GetTodoStats() (stats map[string]interface{}, err error) {
 	return stats, nil
 }
 
+// GetArchivedTodoStats 获取存档统计数据
+func GetArchivedTodoStats() (stats map[string]interface{}, err error) {
+	var totalCount, completedCount int64
+
+	// 总存档数量
+	dao.DB.Model(&Todo{}).Where("is_archived = ?", true).Count(&totalCount)
+
+	// 存档中已完成的数量
+	dao.DB.Model(&Todo{}).Where("is_archived = ? AND status = ?", true, true).Count(&completedCount)
+
+	completionRate := 0.0
+	if totalCount > 0 {
+		completionRate = float64(completedCount) / float64(totalCount) * 100
+	}
+
+	stats = map[string]interface{}{
+		"total_count":     totalCount,
+		"completed_count": completedCount,
+		"completion_rate": completionRate,
+		"archived_count":  totalCount, // 保持兼容性
+	}
+
+	return stats, nil
+}
+
 // GetTodoHistoryStats 获取历史统计数据
 func GetTodoHistoryStats(period string) (stats map[string]interface{}, err error) {
 	var labels []string

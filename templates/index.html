@@ -19,12 +19,16 @@
             <div class="header-content">
                 <h1>每日清单</h1>
                 <div class="time-info">
-                    <div class="date" v-text="currentDate"></div>
-                    <div class="time">
-                        <div class="time-icon" :class="timePeriod" v-text="timeIcon"></div>
-                        <span v-text="currentTime"></span>
-                    </div>
-                </div>
+            <div class="date" v-text="currentDate"></div>
+            <div class="time">
+                <div class="time-icon" :class="timePeriod" v-text="timeIcon"></div>
+                <span v-text="currentTime"></span>
+            </div>
+        </div>
+        <button id="theme-toggle" class="theme-toggle">
+            <span class="theme-icon">🌞</span>
+            <span class="theme-text">切换主题</span>
+        </button>
                 <el-button class="archive-btn" icon="el-icon-folder" @click="goToArchive">查看存档</el-button>
             </div>
         </div>
@@ -51,7 +55,16 @@
                 <div class="todo-title">
                     <span>待办事项列表</span>
                     <span class="refresh-btn" @click="refreshTodoList">
-                        <div class="refresh-icon" ref="refreshIcon"></div>
+                        <div class="refresh-icon" ref="refreshIcon">
+                            <div class="snake-body">
+                                <div class="snake-segment"></div>
+                                <div class="snake-segment"></div>
+                                <div class="snake-segment"></div>
+                                <div class="snake-segment"></div>
+                                <div class="snake-segment"></div>
+                            </div>
+                            <div class="snake-head"></div>
+                        </div>
                         <span>刷新</span>
                     </span>
                 </div>
@@ -366,5 +379,40 @@
             }
         });
     </script>
-</body>
+        <script>
+            // 主题切换功能
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.querySelector('.theme-icon');
+            const themeText = document.querySelector('.theme-text');
+            
+            // 检查本地存储中的主题偏好
+            const isLightTheme = localStorage.getItem('theme') === 'light';
+            if (isLightTheme) {
+                document.body.classList.add('light-theme');
+                themeIcon.textContent = '🌙';
+                themeText.textContent = '夜间模式';
+            }
+            
+            // 主题切换按钮点击事件
+            themeToggle.addEventListener('click', () => {
+                const isLight = document.body.classList.toggle('light-theme');
+                
+                // 更新图标和文本
+                if (isLight) {
+                    themeIcon.textContent = '🌙';
+                    themeText.textContent = '夜间模式';
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    themeIcon.textContent = '🌞';
+                    themeText.textContent = '切换主题';
+                    localStorage.setItem('theme', 'dark');
+                }
+                
+                // 通知ECharts图表更新颜色
+                if (window.updateChart) {
+                    window.updateChart();
+                }
+            });
+        </script>
+    </body>
 </html>

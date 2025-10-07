@@ -16,16 +16,20 @@
         <!-- 头部 -->
         <div class="header">
             <div class="header-content">
-                <el-button class="back-btn" icon="el-icon-arrow-left" @click="goBack">返回主页</el-button>
-                <h1>存档清单</h1>
-                <div class="time-info">
-                    <div class="date" v-text="currentDate"></div>
-                    <div class="time">
-                        <div class="time-icon" :class="timePeriod" v-text="timeIcon"></div>
-                        <span v-text="currentTime"></span>
-                    </div>
+            <el-button class="back-btn" icon="el-icon-arrow-left" @click="goBack">返回主页</el-button>
+            <h1>存档清单</h1>
+            <div class="time-info">
+                <div class="date" v-text="currentDate"></div>
+                <div class="time">
+                    <div class="time-icon" :class="timePeriod" v-text="timeIcon"></div>
+                    <span v-text="currentTime"></span>
                 </div>
             </div>
+            <button id="theme-toggle" class="theme-toggle">
+                <span class="theme-icon">🌞</span>
+                <span class="theme-text">切换主题</span>
+            </button>
+        </div>
         </div>
         
         <div class="container">
@@ -34,7 +38,16 @@
                 <div class="archive-title">
                     <span>存档清单</span>
                     <span class="refresh-btn" @click="refreshArchiveData">
-                        <div class="refresh-icon" ref="refreshIcon"></div>
+                        <div class="refresh-icon" ref="refreshIcon">
+                            <div class="snake-body">
+                                <div class="snake-segment"></div>
+                                <div class="snake-segment"></div>
+                                <div class="snake-segment"></div>
+                                <div class="snake-segment"></div>
+                                <div class="snake-segment"></div>
+                            </div>
+                            <div class="snake-head"></div>
+                        </div>
                         <span>刷新</span>
                     </span>
                 </div>
@@ -197,8 +210,8 @@
                         const archivedResponse = await axios.get('/v1/todo/archived');
                         this.archivedTodos = archivedResponse.data;
                         
-                        // 加载统计数据
-                        const statsResponse = await axios.get('/v1/todo/stats');
+                        // 加载存档统计数据
+                        const statsResponse = await axios.get('/v1/todo/archived/stats');
                         this.stats = statsResponse.data;
                         
                         // 加载历史数据
@@ -281,7 +294,7 @@
                         },
                         series: [
                             {
-                                name: '待办事项',
+                                name: '存档清单',
                                 type: 'pie',
                                 radius: ['35%', '65%'],
                                 center: ['50%', '50%'],
@@ -295,11 +308,6 @@
                                         value: (this.stats.total_count || 0) - (this.stats.completed_count || 0), 
                                         name: '未完成',
                                         itemStyle: { color: '#ed8936' }
-                                    },
-                                    { 
-                                        value: this.stats.archived_count || 0, 
-                                        name: '已存档',
-                                        itemStyle: { color: '#667eea' }
                                     }
                                 ],
                                 emphasis: {
@@ -416,5 +424,35 @@
             }
         });
     </script>
-</body>
+        <script>
+            // 主题切换功能
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.querySelector('.theme-icon');
+            const themeText = document.querySelector('.theme-text');
+            
+            // 检查本地存储中的主题偏好
+            const isLightTheme = localStorage.getItem('theme') === 'light';
+            if (isLightTheme) {
+                document.body.classList.add('light-theme');
+                themeIcon.textContent = '🌙';
+                themeText.textContent = '夜间模式';
+            }
+            
+            // 主题切换按钮点击事件
+            themeToggle.addEventListener('click', () => {
+                const isLight = document.body.classList.toggle('light-theme');
+                
+                // 更新图标和文本
+                if (isLight) {
+                    themeIcon.textContent = '🌙';
+                    themeText.textContent = '夜间模式';
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    themeIcon.textContent = '🌞';
+                    themeText.textContent = '切换主题';
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+        </script>
+    </body>
 </html>
