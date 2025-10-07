@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>存档清单 - DailyChecklist</title>
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="/static/css/main.css">
     <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
-    <link rel="stylesheet" href="/static/css/main.css">
 </head>
 <body>
     <div id="app">
@@ -142,17 +142,9 @@
             el: '#app',
             data() {
                 return {
-                    archivedTodos: [],
-                    stats: {},
-                    loading: false,
-                    currentTime: '',
-                    currentDate: '',
-                    timePeriod: 'morning',
-                    timeIcon: '☀',
-                    selectedPeriod: 'week',
-                    lineChart: null,
-                    pieChart: null,
-                    historyData: {}
+                    archivedTodos: [], stats: {}, loading: false,
+                    currentTime: '', currentDate: '', timePeriod: 'morning', timeIcon: '☀',
+                    selectedPeriod: 'week', lineChart: null, pieChart: null, historyData: {}
                 }
             },
             mounted() {
@@ -164,60 +156,30 @@
             methods: {
                 updateTime() {
                     const now = new Date();
-                    this.currentTime = now.toLocaleTimeString('zh-CN', {
-                        hour12: false,
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    });
-                    this.currentDate = now.toLocaleDateString('zh-CN', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        weekday: 'long'
-                    });
+                    this.currentTime = now.toLocaleTimeString('zh-CN', {hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'});
+                    this.currentDate = now.toLocaleDateString('zh-CN', {year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'});
                     
-                    // 根据时间设置图标和样式
                     const hour = now.getHours();
-                    if (hour >= 6 && hour < 12) {
-                        this.timePeriod = 'morning';
-                        this.timeIcon = '☀';
-                    } else if (hour >= 12 && hour < 18) {
-                        this.timePeriod = 'afternoon';
-                        this.timeIcon = '☀';
-                    } else if (hour >= 18 && hour < 22) {
-                        this.timePeriod = 'evening';
-                        this.timeIcon = '🌅';
-                    } else {
-                        this.timePeriod = 'night';
-                        this.timeIcon = '🌙';
-                    }
+                    if (hour >= 6 && hour < 12) {this.timePeriod = 'morning'; this.timeIcon = '☀';}
+                    else if (hour >= 12 && hour < 18) {this.timePeriod = 'afternoon'; this.timeIcon = '☀';}
+                    else if (hour >= 18 && hour < 22) {this.timePeriod = 'evening'; this.timeIcon = '🌅';}
+                    else {this.timePeriod = 'night'; this.timeIcon = '🌙';}
                 },
                 formatTime(timeStr) {
                     if (!timeStr) return '';
                     const date = new Date(timeStr);
-                    return date.toLocaleString('zh-CN', {
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
+                    return date.toLocaleString('zh-CN', {month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'});
                 },
                 async loadData() {
                     this.loading = true;
                     try {
-                        // 加载存档数据
                         const archivedResponse = await axios.get('/v1/todo/archived');
                         this.archivedTodos = archivedResponse.data;
                         
-                        // 加载存档统计数据
                         const statsResponse = await axios.get('/v1/todo/archived/stats');
                         this.stats = statsResponse.data;
                         
-                        // 加载历史数据
                         await this.loadHistoryData();
-                        
-                        // 更新图表
                         this.updatePieChart();
                         this.updateLineChart();
                     } catch (error) {
@@ -239,24 +201,14 @@
                     await this.loadHistoryData();
                     this.updateLineChart();
                 },
-                async refreshData() {
-                    this.loadData();
-                },
                 async refreshArchiveData() {
-                    // 添加旋转动画
                     if (this.$refs.refreshIcon) {
                         this.$refs.refreshIcon.classList.add('spinning');
-                        setTimeout(() => {
-                            this.$refs.refreshIcon.classList.remove('spinning');
-                        }, 600);
+                        setTimeout(() => {this.$refs.refreshIcon.classList.remove('spinning');}, 600);
                     }
-                    
-                    // 请求数据
                     await this.loadData();
                 },
-                goBack() {
-                    window.location.href = '/';
-                },
+                goBack() {window.location.href = '/';},
                 initCharts() {
                     this.lineChart = echarts.init(document.getElementById('lineChart'));
                     this.pieChart = echarts.init(document.getElementById('pieChart'));
@@ -265,68 +217,20 @@
                     if (!this.pieChart) return;
                     
                     const option = {
-                        title: {
-                            text: '完成情况',
-                            left: 'center',
-                            top: '10px',
-                            textStyle: {
-                                color: '#4a5568',
-                                fontSize: 16,
-                                fontWeight: 'normal'
-                            }
-                        },
-                        tooltip: {
-                            trigger: 'item',
-                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                            borderColor: '#e2e8f0',
-                            textStyle: {
-                                color: '#2d3748'
-                            }
-                        },
-                        legend: {
-                            orient: 'horizontal',
-                            bottom: '5px',
-                            textStyle: {
-                                color: '#718096',
-                                fontSize: 12
-                            },
-                            itemGap: 20
-                        },
-                        series: [
-                            {
-                                name: '存档清单',
-                                type: 'pie',
-                                radius: ['35%', '65%'],
-                                center: ['50%', '50%'],
-                                data: [
-                                    { 
-                                        value: this.stats.completed_count || 0, 
-                                        name: '已完成',
-                                        itemStyle: { color: '#48bb78' }
-                                    },
-                                    { 
-                                        value: (this.stats.total_count || 0) - (this.stats.completed_count || 0), 
-                                        name: '未完成',
-                                        itemStyle: { color: '#ed8936' }
-                                    }
-                                ],
-                                emphasis: {
-                                    itemStyle: {
-                                        shadowBlur: 10,
-                                        shadowOffsetX: 0,
-                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                                    }
-                                },
-                                label: {
-                                    show: false
-                                },
-                                labelLine: {
-                                    show: false
-                                }
-                            }
-                        ]
+                        title: {text: '完成情况', left: 'center', top: '10px', textStyle: {color: '#4a5568', fontSize: 16, fontWeight: 'normal'}},
+                        tooltip: {trigger: 'item', backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: '#e2e8f0', textStyle: {color: '#2d3748'}},
+                        legend: {orient: 'horizontal', bottom: '5px', textStyle: {color: '#718096', fontSize: 12}, itemGap: 20},
+                        series: [{
+                            name: '存档清单', type: 'pie', radius: ['35%', '65%'], center: ['50%', '50%'],
+                            data: [
+                                {value: this.stats.completed_count || 0, name: '已完成', itemStyle: {color: '#48bb78'}},
+                                {value: (this.stats.total_count || 0) - (this.stats.completed_count || 0), name: '未完成', itemStyle: {color: '#ed8936'}}
+                            ],
+                            emphasis: {itemStyle: {shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)'}},
+                            label: {show: false},
+                            labelLine: {show: false}
+                        }]
                     };
-                    
                     this.pieChart.setOption(option);
                 },
                 updateLineChart() {
@@ -336,123 +240,26 @@
                     const labels = this.historyData.labels;
                     
                     const option = {
-                        title: {
-                            text: '创建趋势',
-                            left: 'center',
-                            textStyle: {
-                                color: '#4a5568',
-                                fontSize: 16,
-                                fontWeight: 'normal'
-                            }
-                        },
-                        tooltip: {
-                            trigger: 'axis',
-                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                            borderColor: '#e2e8f0',
-                            textStyle: {
-                                color: '#2d3748'
-                            }
-                        },
-                        grid: {
-                            left: '3%',
-                            right: '4%',
-                            bottom: '3%',
-                            containLabel: true
-                        },
-                        xAxis: {
-                            type: 'category',
-                            boundaryGap: false,
-                            data: labels,
-                            axisLine: {
-                                lineStyle: {
-                                    color: '#e2e8f0'
-                                }
-                            },
-                            axisLabel: {
-                                color: '#718096'
-                            }
-                        },
-                        yAxis: {
-                            type: 'value',
-                            axisLine: {
-                                lineStyle: {
-                                    color: '#e2e8f0'
-                                }
-                            },
-                            axisLabel: {
-                                color: '#718096'
-                            },
-                            splitLine: {
-                                lineStyle: {
-                                    color: '#f7fafc'
-                                }
-                            }
-                        },
-                        series: [
-                            {
-                                name: '创建数量',
-                                type: 'line',
-                                smooth: true,
-                                data: data,
-                                lineStyle: {
-                                    color: '#667eea',
-                                    width: 3
-                                },
-                                itemStyle: {
-                                    color: '#667eea'
-                                },
-                                areaStyle: {
-                                    color: {
-                                        type: 'linear',
-                                        x: 0,
-                                        y: 0,
-                                        x2: 0,
-                                        y2: 1,
-                                        colorStops: [{
-                                            offset: 0, color: 'rgba(102, 126, 234, 0.3)'
-                                        }, {
-                                            offset: 1, color: 'rgba(102, 126, 234, 0.05)'
-                                        }]
-                                    }
-                                }
-                            }
-                        ]
+                        title: {text: '创建趋势', left: 'center', textStyle: {color: '#4a5568', fontSize: 16, fontWeight: 'normal'}},
+                        tooltip: {trigger: 'axis', backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: '#e2e8f0', textStyle: {color: '#2d3748'}},
+                        grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
+                        xAxis: {type: 'category', boundaryGap: false, data: labels, axisLine: {lineStyle: {color: '#e2e8f0'}}, axisLabel: {color: '#718096'}},
+                        yAxis: {type: 'value', axisLine: {lineStyle: {color: '#e2e8f0'}}, axisLabel: {color: '#718096'}, splitLine: {lineStyle: {color: '#f7fafc'}}},
+                        series: [{
+                            name: '创建数量', type: 'line', smooth: true, data: data,
+                            lineStyle: {color: '#667eea', width: 3},
+                            itemStyle: {color: '#667eea'},
+                            areaStyle: {color: {
+                                type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                                colorStops: [{offset: 0, color: 'rgba(102, 126, 234, 0.3)'}, {offset: 1, color: 'rgba(102, 126, 234, 0.05)'}]
+                            }}
+                        }]
                     };
-                    
                     this.lineChart.setOption(option);
                 }
             }
         });
     </script>
-        <script>
-            // 主题切换功能
-            const themeToggle = document.getElementById('theme-toggle');
-            const themeIcon = document.querySelector('.theme-icon');
-            const themeText = document.querySelector('.theme-text');
-            
-            // 检查本地存储中的主题偏好
-            const isLightTheme = localStorage.getItem('theme') === 'light';
-            if (isLightTheme) {
-                document.body.classList.add('light-theme');
-                themeIcon.textContent = '🌙';
-                themeText.textContent = '夜间模式';
-            }
-            
-            // 主题切换按钮点击事件
-            themeToggle.addEventListener('click', () => {
-                const isLight = document.body.classList.toggle('light-theme');
-                
-                // 更新图标和文本
-                if (isLight) {
-                    themeIcon.textContent = '🌙';
-                    themeText.textContent = '夜间模式';
-                    localStorage.setItem('theme', 'light');
-                } else {
-                    themeIcon.textContent = '🌞';
-                    themeText.textContent = '切换主题';
-                    localStorage.setItem('theme', 'dark');
-                }
-            });
-        </script>
+        <script src="/static/common.js"></script>
     </body>
 </html>

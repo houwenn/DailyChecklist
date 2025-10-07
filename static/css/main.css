@@ -5,15 +5,6 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
-    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-    min-height: 100vh;
-    color: var(--text-primary);
-    position: relative;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
 /* 主题变量 */
 :root {
     /* 深色主题变量 */
@@ -24,6 +15,33 @@ body {
     --text-secondary: #a0aec0;
     --border-color: rgba(74, 85, 104, 0.6);
     --shadow-color: rgba(0, 0, 0, 0.2);
+    /* 浅色主题变量 */
+    --light-bg-primary: #f8fafc;
+    --light-bg-secondary: #e2e8f0;
+    --light-bg-card: white;
+    --light-text-primary: #2d3748;
+    --light-text-secondary: #718096;
+    --light-border-color: rgba(226, 232, 240, 0.6);
+    --light-shadow-color: rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    min-height: 100vh;
+    color: var(--text-primary);
+    position: relative;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.light-theme {
+    --bg-primary: var(--light-bg-primary);
+    --bg-secondary: var(--light-bg-secondary);
+    --bg-card: var(--light-bg-card);
+    --text-primary: var(--light-text-primary);
+    --text-secondary: var(--light-text-secondary);
+    --border-color: var(--light-border-color);
+    --shadow-color: var(--light-shadow-color);
 }
 
 /* 主题切换按钮 */
@@ -45,7 +63,6 @@ body {
 
 body.light-theme .theme-toggle {
     background: rgba(255, 255, 255, 0.8);
-    border-color: rgba(226, 232, 240, 0.8);
 }
 
 .theme-toggle:hover {
@@ -60,17 +77,6 @@ body.light-theme .theme-toggle {
 
 body.light-theme .theme-icon {
     transform: rotate(180deg);
-}
-
-/* 浅色主题变量 */
-body.light-theme {
-    --bg-primary: #f8fafc;
-    --bg-secondary: #e2e8f0;
-    --bg-card: white;
-    --text-primary: #2d3748;
-    --text-secondary: #718096;
-    --border-color: rgba(226, 232, 240, 0.6);
-    --shadow-color: rgba(0, 0, 0, 0.08);
 }
 
 /* 添加微妙的背景纹理图案 */
@@ -161,47 +167,15 @@ body.light-theme .header {
     animation: timeGlow 2s ease-in-out infinite alternate;
 }
 
-.time-icon.morning {
-    background: linear-gradient(135deg, #ffd700, #ffed4e);
-    color: #f59e0b;
-}
+.time-icon.morning { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #f59e0b; }
+.time-icon.afternoon { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #d97706; }
+.time-icon.evening { background: linear-gradient(135deg, #f59e0b, #dc2626); color: #991b1b; }
+.time-icon.night { background: linear-gradient(135deg, #4a5568, #2d3748); color: #cbd5e1; }
 
-.time-icon.afternoon {
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
-    color: #d97706;
-}
+@keyframes timeGlow { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
 
-.time-icon.evening {
-    background: linear-gradient(135deg, #f59e0b, #dc2626);
-    color: #991b1b;
-}
-
-.time-icon.night {
-    background: linear-gradient(135deg, #4a5568, #2d3748);
-    color: #cbd5e1;
-}
-
-@keyframes timeGlow {
-    0% { transform: scale(1); opacity: 0.8; }
-    100% { transform: scale(1.1); opacity: 1; }
-}
-
-.back-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    border-radius: 12px;
-    padding: 10px 20px;
-    color: white;
-    font-weight: 500;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    transition: all 0.3s ease;
-}
-
-.back-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
+/* 按钮样式 */
+.back-btn,
 .archive-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
@@ -213,6 +187,7 @@ body.light-theme .header {
     transition: all 0.3s ease;
 }
 
+.back-btn:hover,
 .archive-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
@@ -255,9 +230,7 @@ body.light-theme .header {
     align-items: center;
 }
 
-.add-todo-input {
-    flex: 1;
-}
+.add-todo-input { flex: 1; }
 
 .add-btn {
     background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
@@ -273,9 +246,7 @@ body.light-theme .header {
 }
 
 /* 统计信息 */
-.stats-section {
-    margin-bottom: 30px;
-}
+.stats-section { margin-bottom: 30px; }
 
 .stats-title {
     font-size: 18px;
@@ -286,10 +257,7 @@ body.light-theme .header {
     align-items: center;
 }
 
-.stats-title::before {
-    content: "📊";
-    margin-right: 10px;
-}
+.stats-title::before { content: "📊"; margin-right: 10px; }
 
 .stats-grid {
     display: grid;
@@ -325,17 +293,13 @@ body.light-theme .header {
     font-weight: 500;
 }
 
-.stat-total { color: #667eea; }
-.stat-completed { color: #48bb78; }
+.stat-total, .stat-archived { color: #667eea; }
+.stat-completed, .stat-active { color: #48bb78; }
 .stat-pending { color: #ed8936; }
 .stat-rate { color: #e53e3e; }
-.stat-archived { color: #667eea; }
-.stat-active { color: #48bb78; }
 
 /* 图表卡片 */
-.chart-section {
-    margin-bottom: 30px;
-}
+.chart-section { margin-bottom: 30px; }
 
 .chart-card {
     background: var(--bg-card);
@@ -361,15 +325,9 @@ body.light-theme .header {
     align-items: center;
 }
 
-.chart-title::before {
-    content: "📈";
-    margin-right: 10px;
-}
+.chart-title::before { content: "📈"; margin-right: 10px; }
 
-.chart-tabs {
-    display: flex;
-    gap: 10px;
-}
+.chart-tabs { display: flex; gap: 10px; }
 
 .chart-tab {
     padding: 8px 16px;
@@ -383,131 +341,13 @@ body.light-theme .header {
     font-weight: 500;
 }
 
-.chart-tab.active {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
-}
+.chart-tab.active { background: #667eea; color: white; border-color: #667eea; }
+.chart-tab:hover:not(.active) { border-color: #667eea; color: #667eea; }
 
-.chart-tab:hover:not(.active) {
-    border-color: #667eea;
-    color: #667eea;
-}
+.chart-container { height: 350px; }
 
-.chart-container {
-    height: 350px;
-}
-
-/* 待办事项列表 */
-.todo-section {
-    background: var(--bg-card);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 4px 20px var(--shadow-color);
-    border: 1px solid var(--border-color);
-    backdrop-filter: blur(10px);
-}
-
-.todo-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.todo-title::before {
-    content: "📋";
-    margin-right: 10px;
-}
-
-.todo-table {     
-    border-radius: 12px;     
-    overflow: hidden;    
-    background: var(--bg-card);
-}
-
-.todo-table .el-table__header {
-    background: var(--bg-card);
-}
-
-.todo-table .el-table__header th {
-    background: var(--bg-card);
-    color: var(--text-primary);
-    font-weight: 600;
-    border-bottom: 1px solid var(--border-color);
-}
-
-body.light-theme .todo-table .el-table__header {
-    background: var(--bg-card);
-}
-
-body.light-theme .todo-table .el-table__header th {
-    background: var(--bg-card);
-    color: var(--text-primary);
-    border-bottom: 1px solid var(--border-color);
-}
-
-.todo-table .el-table__body {    
-    background: var(--bg-card);
-}
-
-.todo-table .el-table__body tr {    
-    background: var(--bg-card);
-}
-
-.todo-table .el-table__row {    
-    transition: all 0.3s ease;
-    background: var(--bg-card);
-}
-
-.todo-table .el-table__row:hover {    
-    background: rgba(255, 255, 255, 0.08);  
-}
-
-body.light-theme .todo-table .el-table__row:hover {    
-    background: rgba(0, 0, 0, 0.04);  
-}
-
-/* 修复鼠标悬停时表格单元格变白问题 - 针对深色模式 */
-.todo-table.el-table--enable-row-hover .el-table__body tr:hover>td {
-    background-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-/* 修复鼠标悬停时表格单元格变白问题 - 针对浅色模式 */
-body.light-theme .todo-table.el-table--enable-row-hover .el-table__body tr:hover>td {
-    background-color: rgba(0, 0, 0, 0.04) !important;
-}
-
-/* 增强待办事项列表的字体样式 */
-.todo-table .el-table__body {
-    font-size: 15px;
-}
-
-.todo-table .el-table__body td {
-    font-weight: 700;
-    padding: 14px 0;
-    color: var(--text-primary);
-}
-
-.todo-table .el-table__body td .cell {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-/* 确保表格内所有文本都应用加粗样式 */
-.todo-table .el-table__body tr {
-    font-weight: 700;
-}
-
-.todo-table .el-table__body tr > td {
-    font-weight: 700;
-}
-
-/* 存档列表 */
+/* 通用部分样式 */
+.todo-section,
 .archive-section {
     background: var(--bg-card);
     border-radius: 20px;
@@ -517,6 +357,7 @@ body.light-theme .todo-table.el-table--enable-row-hover .el-table__body tr:hover
     backdrop-filter: blur(10px);
 }
 
+.todo-title,
 .archive-title {
     font-size: 18px;
     font-weight: 600;
@@ -527,11 +368,82 @@ body.light-theme .todo-table.el-table--enable-row-hover .el-table__body tr:hover
     justify-content: space-between;
 }
 
-.archive-title::before {
-    content: "📁";
-    margin-right: 10px;
+.todo-title::before { content: "📋"; margin-right: 10px; }
+.archive-title::before { content: "📁"; margin-right: 10px; }
+
+/* 表格通用样式 */
+.todo-table,
+.archive-table {
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-card);
 }
 
+.todo-table .el-table__header,
+.todo-table .el-table__header th,
+.archive-table .el-table__header,
+.archive-table .el-table__header th {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.todo-table .el-table__body,
+.todo-table .el-table__body tr,
+.todo-table .el-table__row,
+.archive-table .el-table__body,
+.archive-table .el-table__body tr,
+.archive-table .el-table__row {
+    background: var(--bg-card);
+}
+
+.todo-table .el-table__row,
+.archive-table .el-table__row {
+    transition: all 0.3s ease;
+}
+
+/* 表格悬停效果 */
+.todo-table .el-table__row:hover,
+.todo-table.el-table--enable-row-hover .el-table__body tr:hover>td {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.archive-table .el-table__row:hover,
+.archive-table.el-table--enable-row-hover .el-table__body tr:hover>td {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* 浅色模式表格悬停效果 */
+body.light-theme .todo-table .el-table__row:hover,
+body.light-theme .todo-table.el-table--enable-row-hover .el-table__body tr:hover>td,
+body.light-theme .archive-table .el-table__row:hover,
+body.light-theme .archive-table.el-table--enable-row-hover .el-table__body tr:hover>td {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* 表格字体样式 */
+.todo-table .el-table__body,
+.todo-table .el-table__body td,
+.todo-table .el-table__body td .cell,
+.todo-table .el-table__body tr,
+.todo-table .el-table__body tr > td,
+.archive-table .el-table__body,
+.archive-table .el-table__body td,
+.archive-table .el-table__body td .cell,
+.archive-table .el-table__body tr,
+.archive-table .el-table__body tr > td {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.todo-table .el-table__body td,
+.archive-table .el-table__body td {
+    padding: 14px 0;
+}
+
+/* 刷新按钮 */
 .refresh-btn {
     color: #667eea;
     font-size: 14px;
@@ -543,11 +455,9 @@ body.light-theme .todo-table.el-table--enable-row-hover .el-table__body tr:hover
     gap: 6px;
 }
 
-.refresh-btn:hover {
-    color: #5a67d8;
-}
+.refresh-btn:hover { color: #5a67d8; }
 
-/* 蛇形刷新图标样式 - 蛇头箭头设计 */
+/* 蛇形刷新图标 */
 .refresh-icon {
     width: 24px;
     height: 24px;
@@ -558,7 +468,6 @@ body.light-theme .todo-table.el-table--enable-row-hover .el-table__body tr:hover
     transition: all 0.3s ease;
 }
 
-/* 蛇头箭头设计 */
 .refresh-icon::before {
     content: '';
     position: absolute;
@@ -570,7 +479,6 @@ body.light-theme .todo-table.el-table--enable-row-hover .el-table__body tr:hover
     transform: translate(-50%, -50%) rotate(45deg);
 }
 
-/* 蛇身体设计 - 由多个线段组成 */
 .refresh-icon .snake-body {
     position: absolute;
     top: 50%;
@@ -582,7 +490,6 @@ body.light-theme .todo-table.el-table--enable-row-hover .el-table__body tr:hover
     gap: 1px;
 }
 
-/* 蛇身体段 */
 .refresh-icon .snake-segment {
     width: 4px;
     height: 3px;
@@ -591,7 +498,6 @@ body.light-theme .todo-table.el-table--enable-row-hover .el-table__body tr:hover
     opacity: 0.8;
 }
 
-/* 蛇头设计 */
 .refresh-icon .snake-head {
     position: absolute;
     top: 50%;
@@ -605,155 +511,35 @@ body.light-theme .todo-table.el-table--enable-row-hover .el-table__body tr:hover
     z-index: 1;
 }
 
-/* 鼠标悬停效果 */
-.refresh-btn:hover .snake-segment,
-.refresh-btn:hover .snake-head {
-    background-color: #5a67d8;
-    border-left-color: #5a67d8;
-}
+/* 刷新图标悬停效果 */
+.refresh-btn:hover .snake-segment { background-color: #5a67d8; }
+.refresh-btn:hover .snake-head { border-left-color: #5a67d8; }
 
-/* 静止状态下的脉冲效果 */
-.refresh-icon:not(.spinning) .snake-segment {
-    animation: pulseSegment 2s infinite;
-}
+/* 刷新图标动画 */
+.refresh-icon:not(.spinning) .snake-segment { animation: pulseSegment 2s infinite; }
 
-@keyframes pulseSegment {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
-}
+@keyframes pulseSegment { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
 
-/* 蛇形旋转动画 - 实现波浪式旋转效果 */
-.refresh-icon.spinning {
-    animation: snakeSpin 1.2s ease-in-out;
-}
+.refresh-icon.spinning { animation: snakeSpin 1.2s ease-in-out; }
 
 @keyframes snakeSpin {
-    0% {
-        transform: rotate(0deg);
-    }
-    20% {
-        transform: rotate(72deg);
-    }
-    40% {
-        transform: rotate(144deg);
-    }
-    60% {
-        transform: rotate(216deg);
-    }
-    80% {
-        transform: rotate(288deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
+    0%, 100% { transform: rotate(0deg); }
+    20% { transform: rotate(72deg); }
+    40% { transform: rotate(144deg); }
+    60% { transform: rotate(216deg); }
+    80% { transform: rotate(288deg); }
 }
 
-/* 蛇形分段动画 - 实现波浪式移动效果 */
-.refresh-icon.spinning .snake-segment {
-    animation: waveMove 1.2s ease-in-out;
-}
+.refresh-icon.spinning .snake-segment { animation: waveMove 1.2s ease-in-out; }
 
-/* 为不同的线段设置不同的动画延迟，创建波浪效果 */
+/* 为不同线段设置不同动画延迟 */
 .refresh-icon.spinning .snake-segment:nth-child(1) { animation-delay: 0ms; }
 .refresh-icon.spinning .snake-segment:nth-child(2) { animation-delay: 50ms; }
 .refresh-icon.spinning .snake-segment:nth-child(3) { animation-delay: 100ms; }
 .refresh-icon.spinning .snake-segment:nth-child(4) { animation-delay: 150ms; }
 .refresh-icon.spinning .snake-segment:nth-child(5) { animation-delay: 200ms; }
 
-@keyframes waveMove {
-    0%, 100% {
-        opacity: 0.8;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.1);
-    }
-}
-
-.archive-table {    
-    border-radius: 12px;    
-    overflow: hidden;
-    background: var(--bg-card);
-}
-
-.archive-table .el-table__header {    
-    background: var(--bg-card);
-}
-
-.archive-table .el-table__header th {
-    background: var(--bg-card);
-    color: var(--text-primary);
-    font-weight: 600;
-    border-bottom: 1px solid var(--border-color);
-}
-
-body.light-theme .archive-table .el-table__header {
-    background: var(--bg-card);
-}
-
-body.light-theme .archive-table .el-table__header th {
-    background: var(--bg-card);
-    color: var(--text-primary);
-    border-bottom: 1px solid var(--border-color);
-}
-
-.archive-table .el-table__body {    
-    background: var(--bg-card);
-}
-
-.archive-table .el-table__body tr {    
-    background: var(--bg-card);
-}
-
-.archive-table .el-table__row {    
-    transition: all 0.3s ease;
-    background: var(--bg-card);
-}
-
-.archive-table .el-table__row:hover {    
-    background: rgba(255, 255, 255, 0.08);  
-}
-
-body.light-theme .archive-table .el-table__row:hover {
-    background: rgba(0, 0, 0, 0.04);  
-}
-
-/* 修复鼠标悬停时表格单元格变白问题 - 针对深色模式 */
-.archive-table.el-table--enable-row-hover .el-table__body tr:hover>td {
-    background-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-/* 修复鼠标悬停时表格单元格变白问题 - 针对浅色模式 */
-body.light-theme .archive-table.el-table--enable-row-hover .el-table__body tr:hover>td {
-    background-color: rgba(0, 0, 0, 0.04) !important;
-}
-
-/* 增强存档列表的字体样式 */
-.archive-table .el-table__body {
-    font-size: 15px;
-}
-
-.archive-table .el-table__body td {
-    font-weight: 700;
-    padding: 14px 0;
-    color: var(--text-primary);
-}
-
-.archive-table .el-table__body td .cell {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-/* 确保表格内所有文本都应用加粗样式 */
-.archive-table .el-table__body tr {
-    font-weight: 700;
-}
-
-.archive-table .el-table__body tr > td {
-    font-weight: 700;
-}
+@keyframes waveMove { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
 
 /* 状态标签 */
 .status-tag {
@@ -764,15 +550,8 @@ body.light-theme .archive-table.el-table--enable-row-hover .el-table__body tr:ho
     backdrop-filter: blur(5px);
 }
 
-.status-completed {
-    background: rgba(72, 187, 120, 0.2);
-    color: #48bb78;
-}
-
-.status-pending {
-    background: rgba(237, 137, 54, 0.2);
-    color: #ed8936;
-}
+.status-completed { background: rgba(72, 187, 120, 0.2); color: #48bb78; }
+.status-pending { background: rgba(237, 137, 54, 0.2); color: #ed8936; }
 
 /* 时间显示 */
 .time-display {
@@ -782,88 +561,36 @@ body.light-theme .archive-table.el-table--enable-row-hover .el-table__body tr:ho
 }
 
 /* 操作按钮 */
-.todo-actions {
-    display: flex;
-    gap: 8px;
-}
+.todo-actions { display: flex; gap: 8px; }
 
 .action-btn {
     transition: all 0.3s ease;
     border: none;
 }
 
-.action-btn.complete {
-    background: #48bb78;
-    color: white;
-}
+.action-btn.complete { background: #48bb78; color: white; }
+.action-btn.complete:hover { background: #38a169; transform: scale(1.1); }
 
-.action-btn.complete:hover {
-    background: #38a169;
-    transform: scale(1.1);
-}
+.action-btn.undo { background: #ed8936; color: white; }
+.action-btn.undo:hover { background: #dd6b20; transform: scale(1.1); }
 
-.action-btn.undo {
-    background: #ed8936;
-    color: white;
-}
+.action-btn.archive { background: #667eea; color: white; }
+.action-btn.archive:hover { background: #5a67d8; transform: scale(1.1); }
 
-.action-btn.undo:hover {
-    background: #dd6b20;
-    transform: scale(1.1);
-}
-
-.action-btn.archive {
-    background: #667eea;
-    color: white;
-}
-
-.action-btn.archive:hover {
-    background: #5a67d8;
-    transform: scale(1.1);
-}
-
-.action-btn.delete {
-    background: #e53e3e;
-    color: white;
-}
-
-.action-btn.delete:hover {
-    background: #c53030;
-    transform: scale(1.1);
-}
+.action-btn.delete { background: #e53e3e; color: white; }
+.action-btn.delete:hover { background: #c53030; transform: scale(1.1); }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-    .header-content {
-        flex-direction: column;
-        gap: 15px;
-    }
+    .header-content, .add-todo-form, .chart-header { flex-direction: column; gap: 15px; }
     
-    .add-todo-form {
-        flex-direction: column;
-        gap: 15px;
-    }
+    .add-todo-input { width: 100%; }
     
-    .add-todo-input {
-        width: 100%;
-    }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
     
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    .chart-header { align-items: flex-start; }
     
-    .chart-header {
-        flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
-    }
+    .chart-tabs { width: 100%; justify-content: space-between; }
     
-    .chart-tabs {
-        width: 100%;
-        justify-content: space-between;
-    }
-    
-    .todo-actions {
-        flex-wrap: wrap;
-    }
+    .todo-actions { flex-wrap: wrap; }
 }
