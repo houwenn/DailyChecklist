@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('theme', 'light');
         } else {
             themeIcon.textContent = '🌞';
-            themeText.textContent = '切换主题';
+            themeText.textContent = '白天模式';
             localStorage.setItem('theme', 'dark');
         }
     });

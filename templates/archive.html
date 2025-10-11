@@ -16,20 +16,20 @@
         <!-- 头部 -->
         <div class="header">
             <div class="header-content">
-            <el-button class="back-btn" icon="el-icon-arrow-left" @click="goBack">返回主页</el-button>
-            <h1>存档清单</h1>
-            <div class="time-info">
-                <div class="date" v-text="currentDate"></div>
-                <div class="time">
-                    <div class="time-icon" :class="timePeriod" v-text="timeIcon"></div>
-                    <span v-text="currentTime"></span>
+                <h1>存档清单</h1>
+                <div class="time-info">
+                    <div class="date" v-text="currentDate"></div>
+                    <div class="time">
+                        <div class="time-icon" :class="timePeriod" v-text="timeIcon"></div>
+                        <span v-text="currentTime"></span>
+                    </div>
                 </div>
+                <button id="theme-toggle" class="theme-toggle">
+                    <span class="theme-icon">🌞</span>
+                    <span class="theme-text">白天模式</span>
+                </button>
+                <el-button class="back-btn" icon="el-icon-arrow-left" @click="goBack">返回主页</el-button>
             </div>
-            <button id="theme-toggle" class="theme-toggle">
-                <span class="theme-icon">🌞</span>
-                <span class="theme-text">切换主题</span>
-            </button>
-        </div>
         </div>
         
         <div class="container">
